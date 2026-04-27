@@ -1,45 +1,4 @@
-# Claude Code's Entire Source Code Got Leaked via a Sourcemap in npm, Let's Talk About It
-
-> **PS:** This breakdown is also available on [this blog](https://kuber.studio/blog/AI/Claude-Code's-Entire-Source-Code-Got-Leaked-via-a-Sourcemap-in-npm,-Let's-Talk-About-it) with a better reading experience and UX :)
-
-> **Note:** There's a non-zero chance this repo might be taken down. If you want to play around with it later or archive it yourself, feel free to **fork it** and bookmark the external blog link!
-
----
-
-## ⚠️ Important Disclaimer
-
-**I did not leak these files.** I have simply provided an easy, documented way to access and study this codebase for research purposes. All files and information originate from public findings shared on Twitter/X. All credit for the discovery goes to the original source.
-
----
-
-Earlier today (March 31st, 2026) - **Chaofan Shou (@Fried_rice)** discovered something that Anthropic probably didn't want the world to see: the **entire source code** of Claude Code, Anthropic's official AI coding CLI, was sitting in plain sight on the npm registry via a sourcemap file bundled into the published package.
-
-[![The tweet announcing the leak](assets/x-post.png)](https://x.com/Fried_rice/status/2038894956459290963)
-
-This repository is a backup of that leaked source, providing a full breakdown of what's in it, how the leak happened, and the internal systems that were never meant to be public.
-
----
-
-## 🧐 How Did This Even Happen?
-
-When you publish a JavaScript/TypeScript package to npm, the build toolchain often generates **source map files** (`.map` files). These files bridge minified production code and the original source for debugging.
-
-The catch? **Source maps contain the original source code** embedded as strings inside a JSON file under the `sourcesContent` key.
-
-```json
-{
-  "version": 3,
-  "sources": ["../src/main.tsx", "../src/tools/BashTool.ts", "..."],
-  "sourcesContent": ["// The ENTIRE original source code of each file", "..."],
-  "mappings": "AAAA,SAAS,OAAO..."
-}
-```
-
-By forgetting to add `*.map` to `.npmignore` or failing to disable source maps in production builds (Bun's default behavior), the entire raw source was shipped to the npm registry.
-
-[![Claude Code source files exposed in npm package](assets/claude-npm-img.png)](assets/claude-npm-img.png)
-
----
+# code-understand
 
 ## 🛠 What's Under the Hood?
 
