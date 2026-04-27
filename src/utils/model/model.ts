@@ -7,10 +7,9 @@
  */
 import { getMainLoopModelOverride } from '../../bootstrap/state.js'
 import {
+  hasMaxFeatureParity,
   getSubscriptionType,
   isClaudeAISubscriber,
-  isMaxSubscriber,
-  isProSubscriber,
   isTeamPremiumSubscriber,
 } from '../auth.js'
 import {
@@ -184,8 +183,8 @@ export function getDefaultMainLoopModelSetting(): ModelName | ModelAlias {
     )
   }
 
-  // Max users get Opus as default
-  if (isMaxSubscriber()) {
+  // Max-like users get Opus as default
+  if (hasMaxFeatureParity()) {
     return getDefaultOpusModel() + (isOpus1mMergeEnabled() ? '[1m]' : '')
   }
 
@@ -286,7 +285,7 @@ export function getCanonicalName(fullModelName: ModelName): ModelShortName {
 export function getClaudeAiUserDefaultModelDescription(
   fastMode = false,
 ): string {
-  if (isMaxSubscriber() || isTeamPremiumSubscriber()) {
+  if (hasMaxFeatureParity() || isTeamPremiumSubscriber()) {
     if (isOpus1mMergeEnabled()) {
       return `Opus 4.6 with 1M context · Most capable for complex work${fastMode ? getOpus46PricingSuffix(true) : ''}`
     }
@@ -312,18 +311,13 @@ export function getOpus46PricingSuffix(fastMode: boolean): string {
 }
 
 export function isOpus1mMergeEnabled(): boolean {
-  if (
-    is1mContextDisabled() ||
-    isProSubscriber() ||
-    getAPIProvider() !== 'firstParty'
-  ) {
+  if (is1mContextDisabled() || getAPIProvider() !== 'firstParty') {
     return false
   }
   // Fail closed when a subscriber's subscription type is unknown. The VS Code
   // config-loading subprocess can have OAuth tokens with valid scopes but no
   // subscriptionType field (stale or partial refresh). Without this guard,
-  // isProSubscriber() returns false for such users and the merge leaks
-  // opus[1m] into the model dropdown — the API then rejects it with a
+  // the merge can leak opus[1m] into the model dropdown — the API then rejects it with a
   // misleading "rate limit reached" error.
   if (isClaudeAISubscriber() && getSubscriptionType() === null) {
     return false

@@ -61,6 +61,7 @@ import { modelSupportsAutoMode } from '../betas.js'
 import { logForDebugging } from '../debug.js'
 import { gracefulShutdown } from '../gracefulShutdown.js'
 import { getMainLoopModel } from '../model/model.js'
+import { isProSubscriber } from '../auth.js'
 import {
   CROSS_PLATFORM_CODE_EXEC,
   DANGEROUS_BASH_PATTERNS,
@@ -1092,7 +1093,13 @@ export async function verifyAutoModeGateAccess(
     enabled?: AutoModeEnabledState
     disableFastMode?: boolean
   }>('tengu_auto_mode_config', {})
-  const enabledState = parseAutoModeEnabledState(autoModeConfig?.enabled)
+  const fetchedEnabledState = parseAutoModeEnabledState(autoModeConfig?.enabled)
+  const enabledState =
+    process.env.USER_TYPE !== 'ant' &&
+    isProSubscriber() &&
+    fetchedEnabledState === 'disabled'
+      ? 'enabled'
+      : fetchedEnabledState
   const disabledBySettings = isAutoModeDisabledBySettings()
   // Treat settings-disable the same as GrowthBook 'disabled' for circuit-breaker
   // semantics — blocks SDK/explicit re-entry via isAutoModeGateEnabled().

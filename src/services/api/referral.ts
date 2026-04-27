@@ -2,7 +2,7 @@ import axios from 'axios'
 import { getOauthConfig } from '../../constants/oauth.js'
 import {
   getOauthAccountInfo,
-  getSubscriptionType,
+  hasMaxFeatureParity,
   isClaudeAISubscriber,
 } from '../../utils/auth.js'
 import { getGlobalConfig, saveGlobalConfig } from '../../utils/config.js'
@@ -72,7 +72,7 @@ function shouldCheckForPasses(): boolean {
   return !!(
     getOauthAccountInfo()?.organizationUuid &&
     isClaudeAISubscriber() &&
-    getSubscriptionType() === 'max'
+    hasMaxFeatureParity()
   )
 }
 

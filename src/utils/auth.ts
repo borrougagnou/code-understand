@@ -1699,6 +1699,15 @@ export function isProSubscriber(): boolean {
   return getSubscriptionType() === 'pro'
 }
 
+/**
+ * Local feature parity helper: treat Pro like Max for client-side capability
+ * gates without rewriting billing or server-reported quota state.
+ */
+export function hasMaxFeatureParity(): boolean {
+  const subscriptionType = getSubscriptionType()
+  return subscriptionType === 'max' || subscriptionType === 'pro'
+}
+
 export function getRateLimitTier(): string | null {
   if (!isAnthropicAuthEnabled()) {
     return null
